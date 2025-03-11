@@ -24,7 +24,6 @@ const Home = () => {
       id: 'verbal-reasoning',
       items: ['VerbalAbility', 'LogicalReasoning'],
     },
-    // Add other categories as needed
   ];
 
   const handleItemClick = (categoryId, itemName) => {
@@ -35,11 +34,12 @@ const Home = () => {
     const currentUrl = window.location.href;
     if (navigator.share) {
       // Web Share API: Mobile devices
-      navigator.share({
-        title: 'AptitudeArc',
-        text: 'Check out this amazing site for aptitude questions and answers!',
-        url: currentUrl,
-      })
+      navigator
+        .share({
+          title: 'AptitudeArc',
+          text: 'Check out this amazing site for aptitude questions and answers!',
+          url: currentUrl,
+        })
         .then(() => console.log('Share successful'))
         .catch((error) => console.error('Error sharing:', error));
     } else {
@@ -55,8 +55,7 @@ const Home = () => {
   const toggleBrightness = () => {
     setIsDarkMode((prevMode) => {
       const newMode = !prevMode;
-      // Save the user's preference to localStorage
-      localStorage.setItem('isDarkMode', newMode);
+      localStorage.setItem('isDarkMode', newMode); // Save user preference
       return newMode;
     });
   };
@@ -64,6 +63,13 @@ const Home = () => {
   const toggleSidebar = () => {
     setIsSidebarVisible((prevVisibility) => !prevVisibility);
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken'); // Remove authentication token
+    localStorage.removeItem('user'); // Remove user data if stored
+    navigate('/login'); // Redirect to the login page
+  };
+  
 
   // Apply dark mode class to the body element
   useEffect(() => {
@@ -98,7 +104,7 @@ const Home = () => {
             <button className="icon-button" onClick={toggleBrightness}>
               {isDarkMode ? <FaSun className="icon" /> : <FaMoon className="icon" />}
             </button>
-            <button className="icon-button">
+            <button className="icon-button" onClick={handleLogout}>
               <FaSignOutAlt className="icon" />
             </button>
           </div>

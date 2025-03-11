@@ -13,7 +13,10 @@ import DataInterpretation from "./pages/DataInterpretation";
 import VerbalAbility from "./pages/VerbalAbility";
 import SharePage from "./pages/SharePage";
 import SettingsPage from "./pages/SettingsPage";
-import LogoutPage from "./pages/LogoutPage";
+import LoginPage from './auth/LoginPage'; 
+import RegisterPage from "./auth/RegisterPage";
+import ForgotPasswordPage from "./auth/ForgotPasswordPage";
+import TopicDetail from "./pages/TopicDetail"; // A new component for topic details
 import "./styles/Home.css";
 import "./styles/Navbar.css";
 import "./styles/Sidebar.css";
@@ -43,12 +46,15 @@ function App() {
               <Route path="/data-interpretation" element={<DataInterpretation />} />
               <Route path="/verbal-ability" element={<VerbalAbility />} />
               <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/logout" element={<LogoutPage />} />
               <Route path="/share" element={<SharePage />} />
               <Route path="/category/:categoryId" element={<CategoryDetail />} />
               <Route path="/category/general-aptitude/item/arithmetic" element={<Arithmetic />} />
               <Route path="/category/general-aptitude/item/data-interpretation" element={<DataInterpretation />} />
-
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/" element={<LoginPage />} /> {/* Default route */}
+              <Route path="/topics/:topicName" element={<TopicDetail />} />
               </Routes>
           </div>
         </div>
