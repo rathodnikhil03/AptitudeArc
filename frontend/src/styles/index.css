@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+}
+
+.sidebar {
+  width: 240px;
+}
+
+.content {
+  margin-left: 240px;
+  padding: 20px;
+}
