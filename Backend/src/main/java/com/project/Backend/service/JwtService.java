@@ -23,13 +23,14 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
-	private static final String SECRET = "TmV3U2VjcmV0S2V5Rm9ySldUU2lnbmluZ1B1cnBvc2VzMTIzNDU2Nzg=\r\n";
+	
 
 	private String secretKey;
 	
 	
 	
 	public JwtService() {
+		
 		secretKey = generateSecretKey();
 	}
 
@@ -51,7 +52,7 @@ public class JwtService {
 				.setClaims(claims)
 				.setSubject(username)
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + 1000*60*3))
+				.setExpiration(new Date(System.currentTimeMillis() + 1000*60*30))
 				.signWith(getKey(), SignatureAlgorithm.HS256).compact();
 	}
 
