@@ -59,7 +59,7 @@ const TopicPage = () => {
           Home
         </Link>
         <Link underline="hover" color="inherit" href="/topic">
-          Categories
+          Aptitude
         </Link>
         <Typography color="textPrimary">{formattedCategory}</Typography>
       </Breadcrumbs>

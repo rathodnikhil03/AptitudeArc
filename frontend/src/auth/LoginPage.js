@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Container,
@@ -17,14 +17,27 @@ import axios from "axios";
 const LoginPage = () => {
   const navigate = useNavigate();
   const [credentials, setCredentials] = useState({ username: "", password: "" });
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false); // ✅ Prevents multiple redirects
 
+  // ✅ Redirect if already logged in
+  useEffect(() => {
+    const storedToken = sessionStorage.getItem("token");
+    const storedRole = sessionStorage.getItem("role");
+
+    if (storedToken && storedRole && !isRedirecting) {
+      setIsRedirecting(true); // ✅ Prevents multiple redirects
+      navigate(storedRole === "ADMIN" ? "/admin/dashboard" : "/user/profile", { replace: true });
+    }
+  }, [isRedirecting, navigate]);
+
+  // ✅ Handle input changes
   const handleChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+    setCredentials((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  // ✅ Handle form submission
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -33,24 +46,34 @@ const LoginPage = () => {
     try {
       const response = await axios.post("http://localhost:8080/auth/login", credentials);
 
-      if (response.status === 200) {
-        const token = response.data.token;
-        if (rememberMe) {
-          localStorage.setItem("token", token);
-        } else {
-          sessionStorage.setItem("token", token);
-        }
-        navigate("/home");
+      if (!response || !response.data) {
+        throw new Error("Invalid response from server");
       }
+
+      const { token, role } = response.data;
+      const normalizedRole = role.toUpperCase();
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("role", role);
+
+      console.log("Login successful! Redirecting...");
+      navigate(normalizedRole === "ADMIN" ? "/admin/dashboard" : "/user/profile", { replace: true });
     } catch (err) {
+      console.error("Login error:", err.response?.data || err.message);
       setError(err.response?.data?.message || "Invalid username or password.");
     } finally {
       setLoading(false);
     }
   };
 
+  const isAuthenticated = sessionStorage.getItem("token") && sessionStorage.getItem("role");
+
   return (
     <Container maxWidth="sm">
+      {isAuthenticated ? (
+      <Typography variant="h5" align="center" sx={{ mt: 5 }}>
+        You are already logged in.
+      </Typography>
+    ) : (
       <Paper elevation={3} sx={{ p: 4, mt: 5, textAlign: "center" }}>
         <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold" }}>
           LOGIN
@@ -84,16 +107,7 @@ const LoginPage = () => {
           />
 
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", my: 2 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={rememberMe}
-                  onChange={() => setRememberMe(!rememberMe)}
-                  color="primary"
-                />
-              }
-              label="Remember me"
-            />
+            <FormControlLabel control={<Checkbox disabled />} label="Session-based login" />
             <Typography variant="body2">
               <Link to="/forgot-password" style={{ textDecoration: "none", color: "#e65100" }}>
                 Forgot password?
@@ -102,14 +116,26 @@ const LoginPage = () => {
           </Box>
 
           <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            disabled={loading}
-            sx={{ backgroundColor: "#e65100", color: "#fff", mt: 2, py: 1.2, fontSize: "1rem" }}
-          >
-            {loading ? <CircularProgress size={24} sx={{ color: "#fff" }} /> : "Login"}
-          </Button>
+  type="submit"
+  variant="contained"
+  fullWidth
+  disabled={loading}
+  sx={{
+    backgroundColor: "#e65100",
+    color: "#fff",
+    mt: 2,
+    py: 1.2,
+    fontSize: "1rem",
+    "&:hover": { backgroundColor: "#bf360c" }, // Darker hover effect
+  }}
+>
+  {loading ? (
+    <CircularProgress size={24} sx={{ color: "#fff", mx: "auto" }} />
+  ) : (
+    "Login"
+  )}
+</Button>
+
         </form>
 
         <Typography variant="body2" sx={{ mt: 3 }}>
@@ -119,6 +145,7 @@ const LoginPage = () => {
           </Link>
         </Typography>
       </Paper>
+    )}
     </Container>
   );
 };

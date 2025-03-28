@@ -25,7 +25,7 @@ const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value.trim() }); // Trim values
   };
 
   const handleRegister = async (e) => {
@@ -33,30 +33,52 @@ const RegisterPage = () => {
     setError("");
     setSuccess("");
 
-    if (formData.password.length < 6) {
+    const { username, email, password, confirmPassword } = formData;
+
+    console.log("Form Data Before Sending:", formData); // Debugging log
+
+    if (!username || !email || !password || !confirmPassword) {
+      setError("All fields are required.");
+      return;
+    }
+
+    if (password.length < 6) {
       setError("Password must be at least 6 characters long.");
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
 
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:8080/auth/register", {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-      });
+      const response = await axios.post(
+        "http://localhost:8080/auth/register",
+        { username, email, password }, // Ensure password is sent
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (response.status === 201) {
+      console.log("Response:", response);
+
+      if (response.status >= 200 && response.status < 300) {
         setSuccess("Registration successful! Redirecting to login...");
-        setTimeout(() => navigate("/login"), 2000);
+        setFormData({ username: "", email: "", password: "", confirmPassword: "" });
+
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Try again.");
+      console.error("Registration Error:", err.response || err.message);
+      setError(
+        err.response?.data?.message || "Registration failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -68,7 +90,9 @@ const RegisterPage = () => {
         <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold" }}>
           REGISTER
         </Typography>
-        <Box sx={{ borderBottom: "2px solid #e65100", mb: 3, width: "50%", mx: "auto" }}></Box>
+        <Box
+          sx={{ borderBottom: "2px solid #e65100", mb: 3, width: "50%", mx: "auto" }}
+        ></Box>
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}

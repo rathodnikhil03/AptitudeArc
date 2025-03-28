@@ -9,6 +9,9 @@ import TopicDetail from "./pages/TopicDetail";
 import LoginPage from "./auth/LoginPage";
 import RegisterPage from "./auth/RegisterPage";
 import ForgotPasswordPage from "./auth/ForgotPasswordPage";
+import UserProfile from "./pages/UserProfile";
+import AdminDashboard from "./pages/AdminDashboard";
+import ProtectedRoute from "./auth/ProtectedRoute";
 
 const App = () => {
   const [openSidebar, setOpenSidebar] = useState(true);
@@ -38,14 +41,32 @@ const App = () => {
           }}
         >
           <Routes>
-          <Route path="/" element={<Home openSidebar={openSidebar} />} />
-          <Route path="/topic" element={<TopicPage />} />
-          <Route path="/topic/:category" element={<TopicPage />} />
-          <Route path="/topic/:category/:topic" element={<TopicDetail />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/" element={<LoginPage />} /> {/* Default route */}
+            {/* Public Routes (Guest Users) */}
+            <Route path="/" element={<Home openSidebar={openSidebar} />} />
+            <Route path="/topic" element={<TopicPage />} />
+            <Route path="/topic/:category" element={<TopicPage />} />
+            <Route path="/topic/:category/:topic" element={<TopicDetail />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+            {/* Protected Routes */}
+            <Route
+              path="/user/profile"
+              element={
+                <ProtectedRoute allowedRoles={["USER"]}>
+                  <UserProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={["ADMIN"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </Box>
       </Box>
